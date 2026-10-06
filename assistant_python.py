@@ -7,6 +7,7 @@ class Field:
     def __init__(self, value):
         self.value = value
 
+
     def __str__(self):
         return str(self.value)
 
@@ -37,21 +38,24 @@ class Record:
         self.phones = []
         self.birthday = None
 
+
     def add_phone(self, phone):
         self.phones.append(Phone(phone))
 
+
     def remove_phone(self, phone):
-        self.phones = [p for p in self.phones if p.value != phone]
+        phone_obj = self.find_phone(phone)
+        if phone_obj is None:
+            raise ValueError("Такого номера немає в записі")
+        self.phones.remove(phone_obj)
+
 
     def edit_phone(self, old_phone, new_phone):
-        found = False
-        for i, p in enumerate(self.phones):
-            if p.value == old_phone:
-                self.phones[i] = Phone(new_phone)
-                found = True
-                break
-        if not found:
+        if self.find_phone(old_phone) is None:
             raise ValueError("Старий номер телефону не знайдено")
+        self.add_phone(new_phone)
+        self.remove_phone(old_phone)
+
 
     def find_phone(self, phone):
         for p in self.phones:
@@ -59,8 +63,10 @@ class Record:
                 return p
         return None
 
+
     def add_birthday(self, birthday):
         self.birthday = Birthday(birthday)
+
 
     def __str__(self):
         birthday_str = f", birthday: {self.birthday.value}" if self.birthday else ""
@@ -71,12 +77,15 @@ class AddressBook(UserDict):
     def add_record(self, record):
         self.data[record.name.value] = record
 
+
     def find(self, name):
         return self.data.get(name)
+
 
     def delete(self, name):
         if name in self.data:
             del self.data[name]
+
 
     def get_upcoming_birthdays(self):
         today = datetime.today().date()
@@ -99,6 +108,7 @@ class AddressBook(UserDict):
                 birthday_this_year = birthday_this_year.strftime("%d.%m.%Y")
                 result.append({"name": record.name.value, "birthday": birthday_this_year})
         return result
+
 
     def __str__(self):
         return "\n".join(str(record) for record in self.data.values())
